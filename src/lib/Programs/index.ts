@@ -1,10 +1,12 @@
 import { Solana } from "../../constants"
 import { PumpFunProgram } from "./PumpFun"
 import { RaydiumAmmProgram } from "./RaydiumAmm"
+import { RaydiumCpmmProgram } from "./RaydiumCpmm"
 
 export const Programs = [
     RaydiumAmmProgram,
-    PumpFunProgram
+    PumpFunProgram,
+    RaydiumCpmmProgram
 ]
 
 const programIdMap = {

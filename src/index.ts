@@ -8,7 +8,7 @@ import { Program } from "./types";
 import { writeFileSync } from "fs";
 dotenv.config();
 
-fetchTransaction("5UiE3ho9TN2HCK6RqhNtoxzdxBipuhbsMz9BCJ91Fvgizyxg4e8sQdcne6HipTP8dzPUFz5UGKun7cEzqLvXwQew").then(res => res.tx).then((tx) => {
+fetchTransaction("28bFhYAxj8PPtxi66WeWmJ4MpsMar2QdRj4rbhyYqV2GXxbGvSWcra85wT1q61XpcHstpoL7yVQHGJgGkvmQBPpA").then(res => res.tx).then((tx) => {
     //writeFileSync("tx.json", JSON.stringify(tx))
     const logs = tx?.meta?.logMessages || []
     const err = null
