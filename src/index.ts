@@ -8,7 +8,7 @@ import { Program } from "./types";
 import { writeFileSync } from "fs";
 dotenv.config();
 
-fetchTransaction("28bFhYAxj8PPtxi66WeWmJ4MpsMar2QdRj4rbhyYqV2GXxbGvSWcra85wT1q61XpcHstpoL7yVQHGJgGkvmQBPpA").then(res => res.tx).then((tx) => {
+fetchTransaction("2p8FWgeNfckMJLDU629SnJAZnAswwrXQpVKdERHLoTBF1yyf9xfo4nAhau4HCD2WPeYhiuvKaYk4c2eF4FppUerw").then(res => res.tx).then((tx) => {
     //writeFileSync("tx.json", JSON.stringify(tx))
     const logs = tx?.meta?.logMessages || []
     const err = null
@@ -16,7 +16,7 @@ fetchTransaction("28bFhYAxj8PPtxi66WeWmJ4MpsMar2QdRj4rbhyYqV2GXxbGvSWcra85wT1q61
     const grouppedLogs = logParser(logs)
 
     for(let i = 0; i<grouppedLogs.length; i++){
-        const program = programIdMap[grouppedLogs[i].programId.toString()]
+        const program = programIdMap[grouppedLogs[i].programId.toString()] as Program
         if(program && !program.tradeProgram) continue
         if(program && program.fetchRequired){
             const instruction = tx?.transaction.message.instructions[i]

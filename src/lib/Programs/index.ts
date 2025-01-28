@@ -1,12 +1,14 @@
 import { Solana } from "../../constants"
 import { PumpFunProgram } from "./PumpFun"
 import { RaydiumAmmProgram } from "./RaydiumAmm"
+import { RaydiumClmmProgram } from "./RaydiumClmm"
 import { RaydiumCpmmProgram } from "./RaydiumCpmm"
 
 export const Programs = [
     RaydiumAmmProgram,
     PumpFunProgram,
-    RaydiumCpmmProgram
+    RaydiumCpmmProgram,
+    RaydiumClmmProgram
 ]
 
 const programIdMap = {
@@ -15,7 +17,7 @@ const programIdMap = {
         tradeProgram: false,
     },
     [Solana.SystemProgram.toString()]: {
-        fetchReqireed: false,
+        fetchRequired: false,
         tradeProgram: false,
     }
 }

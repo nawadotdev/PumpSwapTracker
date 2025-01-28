@@ -1,36 +1,27 @@
-import { struct, u8 } from "@solana/buffer-layout"
-import { bool, publicKey, u64 } from "@solana/buffer-layout-utils"
+import { Layout, struct, u8 } from "@solana/buffer-layout"
+import { bool, u64 } from "@solana/buffer-layout-utils"
 import { ParsedInstruction, PartiallyDecodedInstruction } from "@solana/web3.js"
 import { getTradeDataWithTransactionParams, Program, TradeData } from "../../types"
 import { Raydium } from "../../constants"
 
-const discriminators = [
-    BigInt("16011174931058048655"), //SwapBaseIn
-    BigInt("12516711329758894391") //SwapBaseOut
-]
-
 const logLayout = struct<any>([
     u64("discriminator"),
-    publicKey("market"),
-    u64("inputVaultBefore"),
-    u64("outputVaultBefore"),
-    u64("inputAmount"),
-    u64("outputAmount"),
-    u64("inputTransferFee"),
-    u64("outputTransferFee"),
-    bool("baseInput"),
+    u64("amount"),
+    u64("other_amount_threshold"),
+    u64("sqrt_price_limit_x64"),
+    bool("is_base_input"),
 ])
 
 const logMatch = (log: string) => {
 
-    try{
+    try {
         if(!log.startsWith("Program data: QMbN6CY")) return false
         const logData = log.split("Program data: ")[1]
         const buffer = Buffer.from(logData,"base64")
-        if(buffer.length != 89) return false
-        if(!discriminators.includes(logLayout.decode(buffer).discriminator)) return false
+        console.log(buffer.length)
+        if(buffer.length != 205) return false
         return true
-    }catch(_){
+    } catch (_) {
         return false
     }
 
@@ -44,8 +35,8 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
 
     const user = (instruction as PartiallyDecodedInstruction).accounts[0]
 
-    var sendingInstruction
-    var receivingInstruction
+    var sendingInstruction: ParsedInstruction
+    var receivingInstruction: ParsedInstruction
 
     if (isInnerInstruction) {
 
@@ -81,8 +72,8 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
     } as TradeData
 }
 
-export const RaydiumCpmmProgram = {
-    programId: Raydium.CpmmProgram,
+export const RaydiumClmmProgram = {
+    programId: Raydium.ClmmProgram,
     logMatch,
     getTradeData,
     fetchRequired: true,
