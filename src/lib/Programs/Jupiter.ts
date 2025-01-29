@@ -51,6 +51,8 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
 
     const events = getEvents(program, innerInstructions)
 
+    if(events.length == 0) return null
+
     const inputMint = events[0].data.inputMint
     const inputMintAmount = (events[0].data.inputAmount as BigInt).toString()
     const inputMintDecimals = transaction.meta?.postTokenBalances?.find(bal => bal.mint == (inputMint as PublicKey).toString())?.uiTokenAmount?.decimals

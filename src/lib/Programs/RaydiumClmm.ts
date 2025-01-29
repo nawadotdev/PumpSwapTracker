@@ -3,7 +3,7 @@ import { bool, u64 } from "@solana/buffer-layout-utils"
 import { ParsedInstruction, PartiallyDecodedInstruction } from "@solana/web3.js"
 import { getTradeDataWithTransactionParams, Program, TradeData } from "../../types"
 import { Raydium } from "../../constants"
-import { getTokenDetailsFromTransferInstruction } from "../../utils/SolanaAccounts/getTokenDetailsFromTransferInstruction"
+import { getTokenDetailsFromTransferInstruction } from "../../utils"
 
 const logLayout = struct<any>([
     u64("discriminator"),

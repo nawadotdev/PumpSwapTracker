@@ -5,13 +5,15 @@ import { PumpFunProgram } from "./PumpFun"
 import { RaydiumAmmProgram } from "./RaydiumAmm"
 import { RaydiumClmmProgram } from "./RaydiumClmm"
 import { RaydiumCpmmProgram } from "./RaydiumCpmm"
+import { MeteoraDlmmProgram } from "./MeteoraDlmm"
 
 export const Programs = [
     RaydiumAmmProgram,
     PumpFunProgram,
     RaydiumCpmmProgram,
     RaydiumClmmProgram,
-    JupiterProgram
+    JupiterProgram,
+    MeteoraDlmmProgram
 ]
 
 const knownNonTradeProgram = {

@@ -1,29 +1,12 @@
-import { struct, u8 } from "@solana/buffer-layout"
-import { u64 } from "@solana/buffer-layout-utils"
 import {  ParsedInstruction, PartiallyDecodedInstruction } from "@solana/web3.js"
 import { getTradeDataWithTransactionParams, Program, TradeData } from "../../types"
-import { Raydium } from "../../constants"
 import { getTokenDetailsFromTransferInstruction } from "../../utils"
-
-const logLayout = struct<any>([
-    u8("log_type")  ,
-    u64("amount_in"),
-    u64("minimum_out"),
-    u64("direction"),
-    u64("user_source"),
-    u64("pool_coin"),
-    u64("pool_pc"),
-    u64("out_amount"),
-])
+import { Meteora } from "../../constants"
 
 const logMatch = (log: string) => {
 
     try{
-        if(!log.startsWith("Program log: ray_log: ")) return false
-        const logData = log.split("ray_log: ")[1]
-        const data = logLayout.decode(Buffer.from(logData,"base64"))
-        if(data.log_type != 3 && data.log_type != 4) return false
-        return true
+        if(log == `Program ${Meteora.DlmmProgram} consumed 2134 of 54813 compute units`) return true
     }catch(_){
         return false
     }
@@ -34,9 +17,13 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
 
     const { transaction, instruction, index, outerIndex } = params
 
+    if((instruction as PartiallyDecodedInstruction).accounts[1]?.toString() != Meteora.DlmmProgram.toString()) return null
+
     const isInnerInstruction = outerIndex !== null
     const user = (instruction as PartiallyDecodedInstruction).accounts[16]
 
+
+    
     var sendingInstruction : ParsedInstruction
     var receivingInstruction : ParsedInstruction
 
@@ -78,8 +65,8 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
     } as TradeData
 }
 
-export const RaydiumAmmProgram = {
-    programId: Raydium.LegacyAmmV4Program,
+export const MeteoraDlmmProgram = {
+    programId: Meteora.DlmmProgram,
     logMatch,
     getTradeData,
     fetchRequired : true,

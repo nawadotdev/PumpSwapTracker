@@ -31,7 +31,7 @@ export const logsCallback = async (_logs: Logs) => {
                     index: i,
                     outerIndex: null
                 })
-                //console.log(tradeData)
+                console.log(tradeData)
                 //console.log(signature)
             } else if (program && !program.fetchRequired) {
                 const tradeData = (program as Program).getTradeData({ logs: grouppedLogs[i].logs })

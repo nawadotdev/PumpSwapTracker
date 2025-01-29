@@ -3,6 +3,7 @@ import { bool, publicKey, u64 } from "@solana/buffer-layout-utils"
 import { ParsedInstruction, PartiallyDecodedInstruction } from "@solana/web3.js"
 import { getTradeDataWithTransactionParams, Program, TradeData } from "../../types"
 import { Raydium } from "../../constants"
+import { getTokenDetailsFromTransferInstruction } from "../../utils"
 
 const discriminators = [
     BigInt("16011174931058048655"), //SwapBaseIn
@@ -62,13 +63,15 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
         receivingInstruction = innerInstructions?.instructions[1] as ParsedInstruction
     }
 
-    const sendingMint = sendingInstruction.parsed.info.mint
-    const sendingAmount = sendingInstruction.parsed.info.tokenAmount.amount
-    const sendingDecimals = sendingInstruction.parsed.info.tokenAmount.decimals
+    const { mint: sendingMint, amount: sendingAmount, decimals: sendingDecimals } = getTokenDetailsFromTransferInstruction(
+        sendingInstruction,
+        transaction
+    )
 
-    const receivingMint = receivingInstruction.parsed.info.mint
-    const receivingAmount = receivingInstruction.parsed.info.tokenAmount.amount
-    const receivingDecimals = receivingInstruction.parsed.info.tokenAmount.decimals
+    const { mint: receivingMint, amount: receivingAmount, decimals: receivingDecimals } = getTokenDetailsFromTransferInstruction(
+        receivingInstruction,
+        transaction
+    )
 
     return {
         user,

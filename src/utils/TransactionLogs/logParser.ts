@@ -1,8 +1,6 @@
 export const logParser = (logs: string[]) => {
 
-    var currentProgram = null
     var currentProgramLogs = []
-    var currentProgramNumber = null
     var programLogs = []
     var count = 0
     for(var i = 0; i<logs.length; i++){

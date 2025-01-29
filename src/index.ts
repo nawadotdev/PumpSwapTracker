@@ -11,7 +11,7 @@ import { logsCallback } from "./utils/TransactionLogs/logsCallback";
 
 dotenv.config();
 
-fetchTransaction("AsGeh8dWuTjtiWuDYwa2gH28i3EedgFHJNALaP6xCvzYKUqvCJTMFXoRBWpspiZwDR2KH4E15mb2k8CNBrCfVSi").then((tx) => {
+fetchTransaction("4rbqirBpEy454FHkT5vPtX3hN1djh4GWdsDteo2t1hUtntipejw4y2nd5YFdCkt1TNvFDvfm7Pi68e1JZJ8ji9Z6").then((tx) => {
     writeFileSync("tx.json", JSON.stringify(tx))
     const logs = tx?.meta?.logMessages || []
     const err = null
