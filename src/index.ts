@@ -6,9 +6,10 @@ import { logParser } from "./utils";
 import {programIdMap} from "./lib";
 import { Program } from "./types";
 import { writeFileSync } from "fs";
+
 dotenv.config();
 
-fetchTransaction("2p8FWgeNfckMJLDU629SnJAZnAswwrXQpVKdERHLoTBF1yyf9xfo4nAhau4HCD2WPeYhiuvKaYk4c2eF4FppUerw").then(res => res.tx).then((tx) => {
+fetchTransaction("2CeuanJmToXQkLLFiGgfrbcQVdjaQ1BixNfWpQrmfLZnKbMZorAzB532nUefadivxuzLm6a9mUSQbR7fRmhtYs5P").then(res => res.tx).then((tx) => {
     //writeFileSync("tx.json", JSON.stringify(tx))
     const logs = tx?.meta?.logMessages || []
     const err = null
@@ -30,6 +31,8 @@ fetchTransaction("2p8FWgeNfckMJLDU629SnJAZnAswwrXQpVKdERHLoTBF1yyf9xfo4nAhau4HCD
         }else if(program && !program.fetchRequired){
             const tradeData = (program as Program).getTradeData({logs : grouppedLogs[i].logs})
             console.log(tradeData)
+        }else{
+            console.log(`Unkown program ${grouppedLogs[i].programId}`)
         }
     }
 
