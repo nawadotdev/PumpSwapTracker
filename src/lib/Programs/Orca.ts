@@ -1,12 +1,12 @@
 import {  ParsedInstruction, PartiallyDecodedInstruction } from "@solana/web3.js"
 import { getTradeDataWithTransactionParams, Program, TradeData } from "../../types"
 import { getTokenDetailsFromTransferInstruction } from "../../utils"
-import { Meteora } from "../../constants"
+import { Orca, Solana } from "../../constants"
 
 const logMatch = (log: string) => {
 
     try{
-        if(log == `Program ${Meteora.DlmmProgram} consumed 2134 of 54813 compute units`) return true
+        if(!log.startsWith(" Program log: fee_growth: ")) return true
         return false
     }catch(_){
         return false
@@ -17,13 +17,10 @@ const logMatch = (log: string) => {
 const getTradeData = (params : getTradeDataWithTransactionParams) => {
 
     const { transaction, instruction, index, outerIndex } = params
-
-    if((instruction as PartiallyDecodedInstruction).accounts[1]?.toString() != Meteora.DlmmProgram.toString()) return null
+    
+    if((instruction as PartiallyDecodedInstruction).accounts[0]?.toString() != Solana.TokenProgram.toString()) return null
 
     const isInnerInstruction = outerIndex !== null
-    const user = (instruction as PartiallyDecodedInstruction).accounts[16]
-
-
     
     var sendingInstruction : ParsedInstruction
     var receivingInstruction : ParsedInstruction
@@ -53,6 +50,8 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
         receivingInstruction,
         transaction
     )
+    
+    const user = sendingInstruction.parsed.info.authority
 
 
     return {
@@ -66,8 +65,8 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
     } as TradeData
 }
 
-export const MeteoraDlmmProgram = {
-    programId: Meteora.DlmmProgram,
+export const OrcaProgram = {
+    programId: Orca.Program,
     logMatch,
     getTradeData,
     fetchRequired : true,

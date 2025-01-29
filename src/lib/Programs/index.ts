@@ -6,6 +6,7 @@ import { RaydiumAmmProgram } from "./RaydiumAmm"
 import { RaydiumClmmProgram } from "./RaydiumClmm"
 import { RaydiumCpmmProgram } from "./RaydiumCpmm"
 import { MeteoraDlmmProgram } from "./MeteoraDlmm"
+import { OrcaProgram } from "./Orca"
 
 export const Programs = [
     RaydiumAmmProgram,
@@ -13,7 +14,8 @@ export const Programs = [
     RaydiumCpmmProgram,
     RaydiumClmmProgram,
     JupiterProgram,
-    MeteoraDlmmProgram
+    MeteoraDlmmProgram,
+    OrcaProgram
 ]
 
 const knownNonTradeProgram = {
