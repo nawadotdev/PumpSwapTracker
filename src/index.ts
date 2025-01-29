@@ -6,34 +6,27 @@ import { logParser } from "./utils";
 import {programIdMap} from "./lib";
 import { Program } from "./types";
 import { writeFileSync } from "fs";
+import { subscribeLogs } from "./services/SolanaClient/subscribeLogs";
+import { logsCallback } from "./utils/TransactionLogs/logsCallback";
 
 dotenv.config();
 
-fetchTransaction("2CeuanJmToXQkLLFiGgfrbcQVdjaQ1BixNfWpQrmfLZnKbMZorAzB532nUefadivxuzLm6a9mUSQbR7fRmhtYs5P").then(res => res.tx).then((tx) => {
-    //writeFileSync("tx.json", JSON.stringify(tx))
+fetchTransaction("AsGeh8dWuTjtiWuDYwa2gH28i3EedgFHJNALaP6xCvzYKUqvCJTMFXoRBWpspiZwDR2KH4E15mb2k8CNBrCfVSi").then((tx) => {
+    writeFileSync("tx.json", JSON.stringify(tx))
     const logs = tx?.meta?.logMessages || []
     const err = null
     const signature = tx?.transaction.signatures[0]
-    const grouppedLogs = logParser(logs)
 
-    for(let i = 0; i<grouppedLogs.length; i++){
-        const program = programIdMap[grouppedLogs[i].programId.toString()] as Program
-        if(program && !program.tradeProgram) continue
-        if(program && program.fetchRequired){
-            const instruction = tx?.transaction.message.instructions[i]
-            const tradeData = (program as Program).getTradeData({
-                transaction : tx as ParsedTransactionWithMeta,
-                instruction : instruction as PartiallyDecodedInstruction,
-                index : i,
-                outerIndex : null
-            })
-            console.log(tradeData)
-        }else if(program && !program.fetchRequired){
-            const tradeData = (program as Program).getTradeData({logs : grouppedLogs[i].logs})
-            console.log(tradeData)
-        }else{
-            console.log(`Unkown program ${grouppedLogs[i].programId}`)
-        }
-    }
+    logsCallback({
+        logs,
+        err,
+        signature : signature as string
+    })
 
 })
+
+// subscribeLogs({
+//     filter : new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
+//     callback: logsCallback,
+//     commitment: "confirmed"
+// })

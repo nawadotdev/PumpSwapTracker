@@ -1,4 +1,5 @@
 import { Solana } from "../../constants"
+import { getTradeDataWithLogsParams, getTradeDataWithTransactionParams, TradeData } from "../../types"
 import { JupiterProgram } from "./Jupiter"
 import { PumpFunProgram } from "./PumpFun"
 import { RaydiumAmmProgram } from "./RaydiumAmm"
@@ -13,20 +14,34 @@ export const Programs = [
     JupiterProgram
 ]
 
+const knownNonTradeProgram = {
+    fetchRequired: false,
+    tradeProgram: false,
+    logMatch : (log: string) => false,
+    getTradeData : (params: (getTradeDataWithLogsParams | getTradeDataWithTransactionParams)) => ({} as TradeData | null)
+}
+
 const programIdMap = {
     [Solana.TokenProgram.toString()]: {
-        fetchRequired: false,
-        tradeProgram: false,
+        ...knownNonTradeProgram,
+        programId : Solana.TokenProgram
     },
     [Solana.SystemProgram.toString()]: {
-        fetchRequired: false,
-        tradeProgram: false,
+        ...knownNonTradeProgram,
+        programId : Solana.SystemProgram
     },
     [Solana.ComputeBudgetProgram.toString()] : {
-        fetchRequired: false,
-        tradeProgram: false,
+        ...knownNonTradeProgram,
+        programId : Solana.ComputeBudgetProgram
+    },
+    [Solana.ATokenProgram.toString()] : {
+        ...knownNonTradeProgram,
+        programId : Solana.ATokenProgram
+    },
+    [Solana.MemoProgram.toString()] : {
+        ...knownNonTradeProgram,
+        programId : Solana.MemoProgram
     }
-
 }
 
 for (let program of Programs) {

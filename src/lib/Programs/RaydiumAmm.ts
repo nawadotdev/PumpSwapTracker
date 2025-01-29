@@ -34,8 +34,7 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
     const { transaction, instruction, index, outerIndex } = params
 
     const isInnerInstruction = outerIndex !== null
-
-    const user = (instruction as PartiallyDecodedInstruction).accounts[17]
+    const user = (instruction as PartiallyDecodedInstruction).accounts[16]
 
     var sendingInstruction : ParsedInstruction
     var receivingInstruction : ParsedInstruction
