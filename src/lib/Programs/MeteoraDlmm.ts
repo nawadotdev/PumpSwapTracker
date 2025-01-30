@@ -6,7 +6,7 @@ import { Meteora } from "../../constants"
 const logMatch = (log: string) => {
 
     try{
-        if(log == `Program ${Meteora.DlmmProgram} consumed 2134 of 54813 compute units`) return true
+        if(log.startsWith(`Program ${Meteora.DlmmProgram} consumed 2134`)) return true
         return false
     }catch(_){
         return false

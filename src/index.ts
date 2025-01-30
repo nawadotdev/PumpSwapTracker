@@ -11,23 +11,25 @@ import { logsCallback } from "./utils/TransactionLogs/logsCallback";
 
 dotenv.config();
 
-fetchTransaction("4ghNVhWtHVDbgFqHZtwTX9Ha1eed86npG9K231SvqPnQYU1fojp84p7knoqmTPxh188tcHuo1wYMMYqbSFhiZRPa").then((tx) => {
+fetchTransaction("22ukj1Y8AW57ov8Fc7y6cmSRDpqcUstGZ4RQ2pxv58CC38phRp1X4kvBd5bZH7uF4PLicN2yvmMxNzKqXkwvNe4M").then((tx) => {
     writeFileSync("tx.json", JSON.stringify(tx))
-    const logs = tx?.meta?.logMessages || []
+    const _logs = tx?.meta?.logMessages || []
     const err = null
-    const signature = tx?.transaction.signatures[0]
+    const signature = tx?.transaction.signatures[0] as string
 
-    // logsCallback({
-    //     logs,
-    //     err,
-    //     signature : signature as string,
-
-    // })
+    logsCallback(
+        {
+            logs : _logs,
+            err,
+            signature
+        },
+        new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN")
+    )
 
 })
 
-subscribeLogs({
-    filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
-    callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN")),
-    commitment: "confirmed",
-})
+// subscribeLogs({
+//     filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
+//     callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN")),
+//     commitment: "confirmed",
+// })
