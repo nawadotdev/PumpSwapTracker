@@ -17,16 +17,17 @@ fetchTransaction("4ghNVhWtHVDbgFqHZtwTX9Ha1eed86npG9K231SvqPnQYU1fojp84p7knoqmTP
     const err = null
     const signature = tx?.transaction.signatures[0]
 
-    logsCallback({
-        logs,
-        err,
-        signature : signature as string
-    })
+    // logsCallback({
+    //     logs,
+    //     err,
+    //     signature : signature as string,
+
+    // })
 
 })
 
-// subscribeLogs({
-//     filter : new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
-//     callback: logsCallback,
-//     commitment: "confirmed"
-// })
+subscribeLogs({
+    filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
+    callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN")),
+    commitment: "confirmed",
+})

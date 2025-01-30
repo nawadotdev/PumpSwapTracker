@@ -1,10 +1,10 @@
-import { Logs, ParsedTransactionMeta, ParsedTransactionWithMeta, PartiallyDecodedInstruction } from "@solana/web3.js";
+import { Logs, ParsedTransactionMeta, ParsedTransactionWithMeta, PartiallyDecodedInstruction, PublicKey } from "@solana/web3.js";
 import { logParser } from "./logParser";
 import { programIdMap } from "../../lib";
 import { fetchTransaction } from "../../services";
-import { Program } from "../../types";
+import { Program, TradeData } from "../../types";
 
-export const logsCallback = async (_logs: Logs) => {
+export const logsCallback = async (_logs: Logs, targetMint: PublicKey) => {
 
     const { signature, logs, err } = _logs;
 
@@ -13,10 +13,11 @@ export const logsCallback = async (_logs: Logs) => {
 
     try{
         var tx: ParsedTransactionWithMeta | null = null
-
+        var trades : (TradeData | null)[] = []
         const grouppedLogs = logParser(logs)
     
         for (let i = 0; i < grouppedLogs.length; i++) {
+            var tradeData = null
             const program = programIdMap[grouppedLogs[i].programId.toString()] as Program
             if (program && !program.tradeProgram) continue
             if (program && program.fetchRequired) {
@@ -25,18 +26,16 @@ export const logsCallback = async (_logs: Logs) => {
                     tx = (await fetchTransaction(signature))
                 }
                 const instruction = tx?.transaction.message.instructions[i]
-                const tradeData = (program as Program).getTradeData({
+                tradeData = (program as Program).getTradeData({
                     transaction: tx as ParsedTransactionWithMeta,
                     instruction: instruction as PartiallyDecodedInstruction,
                     index: i,
                     outerIndex: null
                 })
-                console.log(tradeData)
-                //console.log(signature)
+                if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
             } else if (program && !program.fetchRequired) {
-                const tradeData = (program as Program).getTradeData({ logs: grouppedLogs[i].logs })
-                //console.log(tradeData)
-                //console.log(signature)
+                tradeData = (program as Program).getTradeData({ logs: grouppedLogs[i].logs })
+                if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
             } else {
                 const groupedLog = grouppedLogs[i]
                 var programsInIt : Program[] = []
@@ -61,12 +60,15 @@ export const logsCallback = async (_logs: Logs) => {
                             instruction: innerInstruction as PartiallyDecodedInstruction,
                             index: j,
                             outerIndex: i
-                        })
-                        console.log(tradeData)
+                        }) 
+                        if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
                     }else continue
                 }
             }
+            //notification part
         }
+        
+        console.log(trades, signature)
     }catch(err){
         console.log(err)
         console.log(signature)
