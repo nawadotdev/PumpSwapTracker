@@ -1,10 +1,11 @@
 import { Logs, ParsedTransactionMeta, ParsedTransactionWithMeta, PartiallyDecodedInstruction, PublicKey } from "@solana/web3.js";
 import { logParser } from "./logParser";
 import { programIdMap } from "../../lib";
-import { fetchTransaction } from "../../services";
+import { fetchTransaction } from "../../services/SolanaClient";
 import { Program, TradeData } from "../../types";
+import { Listener } from "../../services/TrackingService";
 
-export const logsCallback = async (_logs: Logs, targetMint: PublicKey) => {
+export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener: Listener) => {
 
     const { signature, logs, err } = _logs;
 
@@ -61,14 +62,16 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey) => {
                             index: j,
                             outerIndex: i
                         }) 
-                        if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
+                         
+                    trades.push(tradeData)
                     }else continue
                 }
             }
-            //notification part
         }
-        
+        trades = trades.filter(trade => trade != null && (trade.inputMint.toString() == targetMint.toString() || trade.outputMint.toString() == targetMint.toString()))
+        if(trades.length == 0) return
         console.log(trades, signature)
+        listener.emit(trades)
     }catch(err){
         console.log(err)
         console.log(signature)
