@@ -52,9 +52,12 @@ export class Listener {
         return this.tokenAddress
     }
 
-    emit = (trades: (TradeData | null)[]) => {
+    emit = (trades: (TradeData | null)[], signature: string | null) => {
         this.clients.forEach(client => {
-            client.socket.emit("trade", trades)
+            client.socket.emit("trade", {
+                trades,
+                signature
+            })
         })
     }
 

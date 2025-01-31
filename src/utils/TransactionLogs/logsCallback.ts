@@ -71,7 +71,7 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener:
         trades = trades.filter(trade => trade != null && (trade.inputMint.toString() == targetMint.toString() || trade.outputMint.toString() == targetMint.toString()))
         if(trades.length == 0) return
         console.log(trades, signature)
-        listener.emit(trades)
+        listener.emit(trades, signature)
     }catch(err){
         console.log(err)
         console.log(signature)

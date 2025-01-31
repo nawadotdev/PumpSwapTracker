@@ -21,7 +21,7 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
     if((instruction as PartiallyDecodedInstruction).accounts[1]?.toString() != Meteora.DlmmProgram.toString()) return null
 
     const isInnerInstruction = outerIndex !== null
-    const user = (instruction as PartiallyDecodedInstruction).accounts[16]
+    const user = (instruction as PartiallyDecodedInstruction).accounts[15]
 
 
     
