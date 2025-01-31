@@ -32,11 +32,11 @@ dotenv.config();
 
 // })
 
-subscribeLogs({
-    filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
-    callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"), new Listener(new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"))),
-    commitment: "confirmed",
-})
+// subscribeLogs({
+//     filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
+//     callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"), new Listener(new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"))),
+//     commitment: "confirmed",
+// })
 
 const listeners: Listener[] = []
 
