@@ -7,7 +7,8 @@ import { getTokenDetailsFromTransferInstruction } from "../../utils"
 
 const discriminators = [
     BigInt("16011174931058048655"), //SwapBaseIn
-    BigInt("12516711329758894391") //SwapBaseOut
+    BigInt("12516711329758894391"), //SwapBaseOut
+    BigInt("16316831888147596864") // SwapBaseInput?
 ]
 
 const logLayout = struct<any>([

@@ -6,7 +6,7 @@ import { Orca, Solana } from "../../constants"
 const logMatch = (log: string) => {
 
     try{
-        if(!log.startsWith(" Program log: fee_growth: ")) return true
+        if(log.startsWith(" Program log: fee_growth: ")) return true
         return false
     }catch(_){
         return false

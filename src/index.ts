@@ -1,5 +1,5 @@
 import { ParsedTransactionWithMeta, PartiallyDecodedInstruction, PublicKey } from "@solana/web3.js";
-import { Connection } from "./services";
+import { Connection, RATE_LIMITED } from "./services";
 import dotenv from "dotenv";
 import { fetchTransaction } from "./services";
 import { logParser } from "./utils";
@@ -7,36 +7,53 @@ import { programIdMap } from "./lib";
 import { Program } from "./types";
 import { writeFileSync } from "fs";
 import { subscribeLogs } from "./services/SolanaClient/subscribeLogs";
-import { logsCallback } from "./utils/TransactionLogs/logsCallback";
+import { logsCallback, SIGNATURE_FETCHED, SIGNATURE_RECEIVED } from "./utils/TransactionLogs/logsCallback";
 import { Server } from "socket.io";
 import http from "http";
 import { Listener } from "./services/TrackingService";
 import { Client } from "./types/Services/TrackingService";
 
+
+//#region TEST AREA
+
+// const SIGNATURE = "3iPFK2PZgaQpt6n7G9viYgqxswrZuyFUCLNXP7RqZD1MVxA4VnmK9qfwZdCALvgHftvtoBtKvzyxC9RQw78dh3Qo"
+// const TOKEN_ADDRESS = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
+
+// fetchTransaction(SIGNATURE).then(x => {
+
+//     const signature = SIGNATURE
+//     const logs = x?.meta?.logMessages || []
+
+//     logsCallback({ signature, logs, err: null }, new PublicKey(TOKEN_ADDRESS), new Listener(new PublicKey(TOKEN_ADDRESS)))
+
+// })
+
+//#endregion
+
+let startDate: Date | null = null
+setInterval(() => {
+    if(SIGNATURE_RECEIVED == 0) return
+    if(!startDate) startDate = new Date()
+    const currentDate = new Date()
+    const diff = currentDate.getTime() - startDate.getTime()
+    const seconds = diff / 1000
+    const avgSignatureReceived = SIGNATURE_RECEIVED / seconds
+    const avgSignatureFetched = SIGNATURE_FETCHED / seconds
+    const skipped = SIGNATURE_RECEIVED - SIGNATURE_FETCHED
+    const skippedPercentage = (skipped / SIGNATURE_RECEIVED) * 100
+    console.clear()
+    console.log(`Uptime: ${seconds} seconds`)
+    console.log(`Signatures Received: ${SIGNATURE_RECEIVED}`)
+    console.log(`Average Signatures Received: ${avgSignatureReceived} per second`)
+    console.log(`Signatures Fetched: ${SIGNATURE_FETCHED}`)
+    console.log(`Average Signatures Fetched: ${avgSignatureFetched} per second`)
+    console.log(`Rate Limited: ${RATE_LIMITED}`)
+    console.log(`Skipped %: ${skippedPercentage}%`)
+    console.log(`Number of Listeners: ${listeners.length}`)
+    
+}, 1000)
+
 dotenv.config();
-
-// fetchTransaction("22ukj1Y8AW57ov8Fc7y6cmSRDpqcUstGZ4RQ2pxv58CC38phRp1X4kvBd5bZH7uF4PLicN2yvmMxNzKqXkwvNe4M").then((tx) => {
-//     writeFileSync("tx.json", JSON.stringify(tx))
-//     const _logs = tx?.meta?.logMessages || []
-//     const err = null
-//     const signature = tx?.transaction.signatures[0] as string
-
-//     logsCallback(
-//         {
-//             logs : _logs,
-//             err,
-//             signature
-//         },
-//         new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN")
-//     )
-
-// })
-
-// subscribeLogs({
-//     filter: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
-//     callback: (logs) => logsCallback(logs, new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"), new Listener(new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"))),
-//     commitment: "confirmed",
-// })
 
 const listeners: Listener[] = []
 
@@ -52,7 +69,7 @@ const io = new Server(httpServer,
 
 io.on("connection", (socket) => {
 
-    //console.log(`${socket.id} connected.`)
+    console.log(`${socket.id} connected.`)
 
     const client: Client = {
         socket: socket,
@@ -83,8 +100,8 @@ io.on("connection", (socket) => {
             return
         }
 
-        const listener = new Listener(coinAddress)
-        console.log(listener)
+        console.log(`Creating listener for ${coinAddress.toString()}`)
+        const listener = new Listener(coinAddress)  
         listener.addClient(client)
         listeners.push(listener)
         client.subscriptions.push(coinAddress)
@@ -113,12 +130,13 @@ io.on("connection", (socket) => {
             return
         }
 
-        var listenerClosed = listener.removeClient(client)
+        const listenerClosed = listener.removeClient(client)
         client.subscriptions = client.subscriptions.filter(s => !s.equals(coinAddress))
 
         socket.emit("unsubscribed", coinAddress.toString())
 
         if (listenerClosed) {
+            console.log(`Listener for ${coinAddress.toString()} closed.`)
             listeners.splice(listeners.indexOf(listener), 1)
         }
 
@@ -128,10 +146,15 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         console.log(`⚠️ ${socket.id} disconnected.`);
-        for (let listener of listeners) {
-            listener.removeClient(client)
+        for (let i = listeners.length - 1; i >= 0; i--) { 
+            const listener = listeners[i];
+            const listenerClosed = listener.removeClient(client);
+            if (listenerClosed) {
+                console.log(`Listener for ${listener.getTokenAddress().toString()} closed.`);
+                listeners.splice(i, 1);
+            }
         }
-      });
+    });
 
 })
 

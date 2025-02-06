@@ -41,7 +41,7 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
         let current = []
         for(let i = index+1; i<outersInstructions.length; i++){
             const ix = outersInstructions[i]
-            if(ix.programId.equals(JupConstants.AggregatorV6Program) && (ix as PartiallyDecodedInstruction).accounts[1].equals(JupConstants.ProgramAuthority) && (ix as PartiallyDecodedInstruction).accounts[0].equals(Solana.TokenProgram)) break
+            if(ix.programId.equals(JupConstants.AggregatorV6Program) && ((ix as PartiallyDecodedInstruction).accounts[1]?.equals(JupConstants.ProgramAuthority) || (ix as PartiallyDecodedInstruction).accounts.length == 1) && (ix as PartiallyDecodedInstruction).accounts[0].equals(Solana.TokenProgram)) break
             if(ix.programId.equals(JupConstants.AggregatorV6Program)){
                 current.push(ix)
             }

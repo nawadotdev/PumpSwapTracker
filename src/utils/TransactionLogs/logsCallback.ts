@@ -5,18 +5,19 @@ import { fetchTransaction } from "../../services/SolanaClient";
 import { Program, TradeData } from "../../types";
 import { Listener } from "../../services/TrackingService";
 
+export let SIGNATURE_RECEIVED = 0
+export let SIGNATURE_FETCHED = 0
+
 export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener: Listener) => {
 
     const { signature, logs, err } = _logs;
-
+    SIGNATURE_RECEIVED++
     if(signature == "1111111111111111111111111111111111111111111111111111111111111111") return
     if (err) return
-
     try{
         var tx: ParsedTransactionWithMeta | null = null
         var trades : (TradeData | null)[] = []
         const grouppedLogs = logParser(logs)
-    
         for (let i = 0; i < grouppedLogs.length; i++) {
             var tradeData = null
             const program = programIdMap[grouppedLogs[i].programId.toString()] as Program
@@ -36,6 +37,7 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener:
                 if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
             } else if (program && !program.fetchRequired) {
                 tradeData = (program as Program).getTradeData({ logs: grouppedLogs[i].logs })
+                trades.push(tradeData)
                 if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
             } else {
                 const groupedLog = grouppedLogs[i]
@@ -69,15 +71,15 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener:
             }
         }
         trades = trades.filter(trade => trade != null && (trade.inputMint.toString() == targetMint.toString() || trade.outputMint.toString() == targetMint.toString()))
+        //if(tx != null && trades.length == 0) console.log(signature)
         if(trades.length == 0) return
-        console.log(trades, signature)
+        SIGNATURE_FETCHED++
+        //console.log(trades, signature)
         listener.emit(trades, signature)
     }catch(err){
         console.log(err)
         console.log(signature)
     }
-
-
 
 
 
