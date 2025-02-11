@@ -1,51 +1,47 @@
-import { ParsedInnerInstruction, ParsedInstruction, ParsedTransactionWithMeta, PartiallyDecodedInstruction } from "@solana/web3.js";
+import { ParsedInstruction, ParsedTransactionWithMeta } from "@solana/web3.js";
 
 export const getTokenDetailsFromTransferInstruction = (
-    instruction: (ParsedInstruction),
-    tx: ParsedTransactionWithMeta
+  instruction: ParsedInstruction,
+  tx: ParsedTransactionWithMeta
 ) => {
+  let mint: string | undefined;
+  let decimals: number | undefined;
+  let amount: string | undefined;
 
-    var mint
-    var decimals
-    var amount
+  const { type, info } = instruction.parsed;
 
+  if (type === "transferChecked") {
+    mint = info.mint;
+    amount = info.tokenAmount.amount;
+    decimals = info.tokenAmount.decimals;
+  } else if (type === "transfer") {
+    amount = info.amount;
 
-    if (instruction.parsed.type == "transferChecked") {
+    const balances = [
+      ...(tx.meta?.postTokenBalances || []),
+      ...(tx.meta?.preTokenBalances || []),
+    ];
 
-        mint = instruction.parsed.info.mint
-        amount = instruction.parsed.info.tokenAmount.amount
-        decimals = instruction.parsed.info.tokenAmount.decimals
+    const destination = info.destination;
+    const destinationIndex = tx.transaction.message.accountKeys.findIndex(
+      (ak) => ak.pubkey === destination
+    );
 
-    } else if (instruction.parsed.type == "transfer") {
+    let balance = balances.find((bal) => bal.accountIndex === destinationIndex);
 
-        amount = instruction.parsed.info.amount
-        const balances = [...tx.meta?.postTokenBalances || [], ...tx.meta?.preTokenBalances || []]
-        const destination = instruction.parsed.info.destination
-        const destionationIndex = tx.transaction.message.accountKeys.findIndex(ak => ak.pubkey == destination)
-        var balance = balances.find(bal => bal.accountIndex == destionationIndex)
-        if (!balance) {
-
-            const source = instruction.parsed.info.source
-            const sourecIndex = tx.transaction.message.accountKeys.findIndex(ak => ak.pubkey == source)
-            balance = balances.find(bal => bal.accountIndex == sourecIndex)
-
-        }
-
-        mint = balance?.mint
-        decimals = balance?.uiTokenAmount.decimals
-
-
-
-    } else {
-        console.log("Unkown Instruction")
-        console.log(instruction)
-        console.log(tx)
+    if (!balance) {
+      const source = info.source;
+      const sourceIndex = tx.transaction.message.accountKeys.findIndex(
+        (ak) => ak.pubkey === source
+      );
+      balance = balances.find((bal) => bal.accountIndex === sourceIndex);
     }
 
-    return {
-        mint,
-        amount,
-        decimals
-    }
+    mint = balance?.mint;
+    decimals = balance?.uiTokenAmount?.decimals;
+  } else {
+    console.error("Unknown Instruction:", instruction, tx);
+  }
 
-}
+  return { mint, amount, decimals };
+};
