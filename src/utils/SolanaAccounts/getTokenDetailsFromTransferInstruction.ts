@@ -5,9 +5,9 @@ export const getTokenDetailsFromTransferInstruction = (
     tx: ParsedTransactionWithMeta
 ) => {
 
-    var mint
-    var decimals
-    var amount
+    let mint
+    let decimals
+    let amount
 
 
     if (instruction.parsed.type == "transferChecked") {
@@ -22,7 +22,7 @@ export const getTokenDetailsFromTransferInstruction = (
         const balances = [...tx.meta?.postTokenBalances || [], ...tx.meta?.preTokenBalances || []]
         const destination = instruction.parsed.info.destination
         const destionationIndex = tx.transaction.message.accountKeys.findIndex(ak => ak.pubkey == destination)
-        var balance = balances.find(bal => bal.accountIndex == destionationIndex)
+        let balance = balances.find(bal => bal.accountIndex == destionationIndex)
         if (!balance) {
 
             const source = instruction.parsed.info.source

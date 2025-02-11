@@ -46,8 +46,8 @@ const getTradeData = (params: getTradeDataWithTransactionParams) => {
 
     const user = (instruction as PartiallyDecodedInstruction).accounts[0]
 
-    var sendingInstruction
-    var receivingInstruction
+    let sendingInstruction
+    let receivingInstruction
 
     if (isInnerInstruction) {
 

@@ -6,8 +6,8 @@ export let RATE_LIMITED = 0
 export const fetchTransaction = async (signature : string) => {
     
     
-    var tryCount = 0
-    var tx = null
+    let tryCount = 0
+    let tx = null
     while(tryCount < MAX_TRY){
         tryCount++
         try{

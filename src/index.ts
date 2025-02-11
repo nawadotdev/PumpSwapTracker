@@ -30,28 +30,28 @@ import { Client } from "./types/Services/TrackingService";
 
 //#endregion
 
-let startDate: Date | null = null
-setInterval(() => {
-    if(SIGNATURE_RECEIVED == 0) return
-    if(!startDate) startDate = new Date()
-    const currentDate = new Date()
-    const diff = currentDate.getTime() - startDate.getTime()
-    const seconds = diff / 1000
-    const avgSignatureReceived = SIGNATURE_RECEIVED / seconds
-    const avgSignatureFetched = SIGNATURE_FETCHED / seconds
-    const skipped = SIGNATURE_RECEIVED - SIGNATURE_FETCHED
-    const skippedPercentage = (skipped / SIGNATURE_RECEIVED) * 100
-    console.clear()
-    console.log(`Uptime: ${seconds} seconds`)
-    console.log(`Signatures Received: ${SIGNATURE_RECEIVED}`)
-    console.log(`Average Signatures Received: ${avgSignatureReceived} per second`)
-    console.log(`Signatures Fetched: ${SIGNATURE_FETCHED}`)
-    console.log(`Average Signatures Fetched: ${avgSignatureFetched} per second`)
-    console.log(`Rate Limited: ${RATE_LIMITED}`)
-    console.log(`Skipped %: ${skippedPercentage}%`)
-    console.log(`Number of Listeners: ${listeners.length}`)
+// let startDate: Date | null = null
+// setInterval(() => {
+//     if(SIGNATURE_RECEIVED == 0) return
+//     if(!startDate) startDate = new Date()
+//     const currentDate = new Date()
+//     const diff = currentDate.getTime() - startDate.getTime()
+//     const seconds = diff / 1000
+//     const avgSignatureReceived = SIGNATURE_RECEIVED / seconds
+//     const avgSignatureFetched = SIGNATURE_FETCHED / seconds
+//     const skipped = SIGNATURE_RECEIVED - SIGNATURE_FETCHED
+//     const skippedPercentage = (skipped / SIGNATURE_RECEIVED) * 100
+//     console.clear()
+//     console.log(`Uptime: ${seconds} seconds`)
+//     console.log(`Signatures Received: ${SIGNATURE_RECEIVED}`)
+//     console.log(`Average Signatures Received: ${avgSignatureReceived} per second`)
+//     console.log(`Signatures Fetched: ${SIGNATURE_FETCHED}`)
+//     console.log(`Average Signatures Fetched: ${avgSignatureFetched} per second`)
+//     console.log(`Rate Limited: ${RATE_LIMITED}`)
+//     console.log(`Skipped %: ${skippedPercentage}%`)
+//     console.log(`Number of Listeners: ${listeners.length}`)
     
-}, 1000)
+// }, 1000)
 
 dotenv.config();
 
@@ -78,9 +78,9 @@ io.on("connection", (socket) => {
 
     socket.on("subscribe", (tokenAddress: string) => {
 
-
+        let coinAddress: PublicKey
         try {
-            var coinAddress = new PublicKey(tokenAddress)
+            coinAddress = new PublicKey(tokenAddress)
         } catch (_) {
             socket.emit("error", "Invalid token address")
             return
@@ -111,8 +111,10 @@ io.on("connection", (socket) => {
 
     socket.on("unsubscribe", (tokenAddress: String) => {
 
+        let coinAddress: PublicKey
+
         try {
-            var coinAddress = new PublicKey(tokenAddress)
+            coinAddress = new PublicKey(tokenAddress)
         } catch (_) {
             socket.emit("error", "Invalid token address")
             return

@@ -22,8 +22,8 @@ const getTradeData = (params : getTradeDataWithTransactionParams) => {
 
     const isInnerInstruction = outerIndex !== null
     
-    var sendingInstruction : ParsedInstruction
-    var receivingInstruction : ParsedInstruction
+    let sendingInstruction : ParsedInstruction
+    let receivingInstruction : ParsedInstruction
 
     if(isInnerInstruction){
 

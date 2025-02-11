@@ -15,11 +15,11 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener:
     if(signature == "1111111111111111111111111111111111111111111111111111111111111111") return
     if (err) return
     try{
-        var tx: ParsedTransactionWithMeta | null = null
-        var trades : (TradeData | null)[] = []
+        let tx: ParsedTransactionWithMeta | null = null
+        let trades : (TradeData | null)[] = []
         const grouppedLogs = logParser(logs)
         for (let i = 0; i < grouppedLogs.length; i++) {
-            var tradeData = null
+            let tradeData = null
             const program = programIdMap[grouppedLogs[i].programId.toString()] as Program
             if (program && !program.tradeProgram) continue
             if (program && program.fetchRequired) {
@@ -41,7 +41,7 @@ export const logsCallback = async (_logs: Logs, targetMint: PublicKey, listener:
                 if(tradeData && (tradeData.inputMint.toString() == targetMint.toString() || tradeData.outputMint.toString() == targetMint.toString())) trades.push(tradeData)
             } else {
                 const groupedLog = grouppedLogs[i]
-                var programsInIt : Program[] = []
+                let programsInIt : Program[] = []
                 for(let program in programIdMap){
                     for(let log of groupedLog.logs){
                         if(programIdMap[program]?.logMatch(log)){

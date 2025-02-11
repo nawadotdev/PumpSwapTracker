@@ -1,9 +1,9 @@
 export const logParser = (logs: string[]) => {
 
-    var currentProgramLogs = []
-    var programLogs = []
-    var count = 0
-    for(var i = 0; i<logs.length; i++){
+    let currentProgramLogs = []
+    let programLogs = []
+    let count = 0
+    for(let i = 0; i<logs.length; i++){
         currentProgramLogs.push(logs[i])
         const logParts = logs[i].split(" ")
         const isInvoke = logParts[2] == "invoke" && logParts[0] == "Program"
