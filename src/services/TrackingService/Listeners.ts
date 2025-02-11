@@ -5,60 +5,46 @@ import { logsCallback } from "../../utils/TransactionLogs/logsCallback";
 import { TradeData } from "../../types";
 
 export class Listener {
+  private clients: Set<Client> = new Set();
+  private readonly listenerId: number;
+  private readonly tokenAddress: PublicKey;
 
+  constructor(tokenAddress: PublicKey) {
+    this.tokenAddress = tokenAddress;
+    this.listenerId = subscribeLogs({
+      filter: tokenAddress,
+      callback: (logs) => logsCallback(logs, tokenAddress, this),
+    });
+  }
 
-    private clients: Client[] = []
-    private readonly listenerId : number
-    private readonly tokenAddress : PublicKey
+  private unsubscribe(): void {
+    unsubscribeLogs(this.listenerId);
+  }
 
-    constructor(tokenAddress: PublicKey){
-        this.listenerId = subscribeLogs({
-            filter: tokenAddress,
-            callback : (logs) => logsCallback(logs, tokenAddress, this)
-        })
-        this.tokenAddress = tokenAddress
+  addClient(client: Client): boolean {
+    if (this.clients.has(client)) return false;
+    this.clients.add(client);
+    return true;
+  }
+
+  removeClient(client: Client): boolean {
+    if (!this.clients.has(client)) return false;
+    this.clients.delete(client);
+
+    if (this.clients.size === 0) {
+      this.unsubscribe();
+      return true;
     }
+    return false;
+  }
 
-    unsubscribe = () => {
-        unsubscribeLogs(this.listenerId)
-        return true
-    }
+  getClients(): Client[] {
+    return Array.from(this.clients);
+  }
 
-    addClient = (client:Client) => {
-        const existingClient = this.clients.find(c => c.socket === client.socket)
-        if(existingClient) return false
-        this.clients.push(client)
-        return true
-    }
-
-    removeClient = (client:Client) => {
-        this.clients = this.clients.filter(c => c.socket !== client.socket)
-        if(this.clients.length === 0){
-            this.unsubscribe()
-            return true
-        }
-        return false
-    }
-
-    getClients = () => {
-        return this.clients
-    }
-
-    getListenerId = () => {
-        return this.listenerId
-    }
-
-    getTokenAddress = () => {
-        return this.tokenAddress
-    }
-
-    emit = (trades: (TradeData | null)[], signature: string | null) => {
-        this.clients.forEach(client => {
-            client.socket.emit("trade", {
-                trades,
-                signature
-            })
-        })
-    }
-
+  emit(trades: (TradeData | null)[], signature: string | null): void {
+    this.clients.forEach((client) => {
+      client.socket.emit("trade", { trades, signature });
+    });
+  }
 }
