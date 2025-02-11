@@ -9,6 +9,7 @@ import { programIdMap } from "../../lib";
 import { fetchTransaction } from "../../services/SolanaClient";
 import { Program, TradeData } from "../../types";
 import { Listener } from "../../services/TrackingService";
+import { fetchTokenDetails } from "../../services";
 
 export let SIGNATURE_RECEIVED = 0;
 export let SIGNATURE_FETCHED = 0;
@@ -131,6 +132,22 @@ export const logsCallback = async (
     if (trades.length === 0) return;
 
     SIGNATURE_FETCHED++;
+
+    //Fetch the token price
+    const tokenPrice = await fetchTokenDetails(targetMint);
+    if (tokenPrice === null) return;
+
+    //Filter the trades, if the trade volume is less than 100, ignore it
+    trades = trades.filter((trade) => {
+      const targetIsBase = trade.inputMint?.toString() === targetMint.toString();
+      const _targetAmount = targetIsBase ? trade.inputAmount : trade.outputAmount;
+      const targetDecimals = targetIsBase ? trade.inputDecimals : trade.outputDecimals;
+      const targetAmount = BigInt(_targetAmount) / BigInt(Math.pow(10, targetDecimals));
+      const volume = targetAmount * BigInt(tokenPrice);
+
+      return volume >= BigInt(100);
+    });
+
     listener.emit(trades, signature);
   } catch (err) {
     console.error("Error in logsCallback:", err);
