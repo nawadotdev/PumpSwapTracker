@@ -21,14 +21,41 @@ interface DexscreenerResponse {
   pairs: DexscreenerPair[] | null;
 }
 
-// Common fetch function with error handling
-const fetchJSON = async <T>(url: string): Promise<T> => {
-  const resp = await fetch(url);
-  if (!resp.ok) {
-    throw new Error(`HTTP Error: ${resp.status}`);
+interface JupiterResponse {
+  data: {
+    [key: string]: {
+      id: string;
+      type: string;
+      price: string;
+    };
+  };
+}
+
+// Fetch token details from Jupiter API
+const fetchFromJupiter = async (tokenAddress: string): Promise<number | null> => {
+  const url = `https://api.jup.ag/price/v2?ids=${tokenAddress}`;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      console.error(`Jupiter API HTTP error: ${resp.status}`);
+      return null;
+    }
+    const data: JupiterResponse = await resp.json();
+
+    if (!data.data || !data.data[tokenAddress] || !data.data[tokenAddress].price) {
+      console.error("Invalid data from Jupiter API:", data);
+      return null;
+    }
+
+    const price = Number(data.data[tokenAddress].price);
+    return isNaN(price) ? null : price;
+  } catch (error) {
+    console.error("Error fetching from Jupiter API:", (error as Error).message);
+    return null;
   }
-  return await resp.json();
 };
+
+
 
 // Fetch token details from PumpFun API
 const fetchFromPumpFun = async (tokenAddress: string): Promise<number | null> => {
@@ -96,20 +123,17 @@ const fetchFromDexscreener = async (tokenAddress: string): Promise<number | null
   }
 };
 
-// Function to fetch token details from both APIs
+const providers = [fetchFromPumpFun, fetchFromJupiter, fetchFromDexscreener];
 export const fetchTokenDetails = async (
   tokenAddress: string | PublicKey
 ): Promise<number | null> => {
   const tokenAddressStr = tokenAddress.toString();
 
-  try {
-    let price = await fetchFromPumpFun(tokenAddressStr);
-    if (price === null) {
-      price = await fetchFromDexscreener(tokenAddressStr);
-    }
-    return price;
-  } catch (error) {
-    console.error("Error fetching token details:", (error as Error).message);
-    return null;
+  for (const provider of providers) {
+    const price = await provider(tokenAddressStr);
+    if (price != null) return price;
   }
+
+  console.error("All providers failed to fetch token details for:", tokenAddressStr);
+  return null;
 };

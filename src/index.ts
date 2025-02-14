@@ -13,8 +13,10 @@ import { Client } from "./types/Services/TrackingService";
 dotenv.config();
 
 // --- Metrics Logging ---
+const logMetrics = false
 let startDate: Date | null = null;
 setInterval(() => {
+  if (!logMetrics) return;
   if (SIGNATURE_RECEIVED === 0) {
     return;
   }

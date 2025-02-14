@@ -143,9 +143,13 @@ export const logsCallback = async (
       const _targetAmount = targetIsBase ? trade.inputAmount : trade.outputAmount;
       const targetDecimals = targetIsBase ? trade.inputDecimals : trade.outputDecimals;
       const targetAmount = BigInt(_targetAmount) / BigInt(Math.pow(10, targetDecimals));
-      const volume = targetAmount * BigInt(tokenPrice);
+      const volume = Number(targetAmount) * (tokenPrice);
 
-      return volume >= BigInt(100);
+      if (volume < 100){
+        console.log("Volume less than 100:", signature);
+      }
+
+      return volume >= 100;
     });
 
     listener.emit(trades, signature);
