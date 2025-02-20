@@ -8,7 +8,7 @@ import { logParser } from "./logParser";
 import { programIdMap } from "../../lib";
 import { fetchTransaction } from "../../services/SolanaClient";
 import { Program, TradeData } from "../../types";
-import { Listener } from "../../services/TrackingService";
+import { Listener } from "../../services";
 import { fetchTokenDetails } from "../../services";
 
 export let SIGNATURE_RECEIVED = 0;
@@ -123,10 +123,7 @@ export const logsCallback = async (
     }
 
     trades = trades.filter(
-      (trade) =>
-        trade &&
-        (trade.inputMint?.toString() === targetMint.toString() ||
-          trade.outputMint?.toString() === targetMint.toString())
+      (trade) => trade && (trade.outputMint?.toString() === targetMint.toString())
     );
 
     if (trades.length === 0) return;
@@ -151,7 +148,8 @@ export const logsCallback = async (
 
       return volume >= 100;
     });
-
+    
+    if (trades.length === 0) return;
     listener.emit(trades, signature);
   } catch (err) {
     console.error("Error in logsCallback:", err);

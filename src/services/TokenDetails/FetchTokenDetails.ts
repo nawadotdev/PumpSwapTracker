@@ -59,6 +59,7 @@ const fetchFromJupiter = async (tokenAddress: string): Promise<number | null> =>
 
 // Fetch token details from PumpFun API
 const fetchFromPumpFun = async (tokenAddress: string): Promise<number | null> => {
+  if(!tokenAddress.endsWith("pump")) return null
   const url = `https://frontend-api-v2.pump.fun/coins/${tokenAddress}`;
   try {
     const resp = await fetch(url);
